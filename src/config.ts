@@ -19,7 +19,7 @@ export const PRODUCT_ITEMS: ItemConfig[] = [
   { code: '57', displayName: '5x7 Individual', price: 9, category: 'product' },
   { code: '810', displayName: '8x10 Individual', price: 15, category: 'product' },
   { code: '23', displayName: '4 Wallets', price: 8, category: 'product' },
-  { code: '23x8', displayName: '8 Wallets', price: 14, category: 'product' },
+  { code: '23x8', displayName: '8 Wallets', price: 15, category: 'product' },
   { code: 'Bu', displayName: 'Button', price: 9, category: 'product' },
   { code: 'ABa', displayName: 'Acrylic Button', price: 9, category: 'product' },
   { code: 'Ma', displayName: 'Magnet', price: 9, category: 'product' },

@@ -21,8 +21,15 @@ export const ItemComponent: React.FC<ItemComponentProps> = ({
     onQuantityChange(item.code, value);
   };
 
+  const handleItemClick = () => {
+    onIncrement(item.code);
+  };
+
   return (
-    <div className={`item-component ${quantity > 0 ? 'has-quantity' : ''}`}>
+    <div 
+      className={`item-component ${quantity > 0 ? 'has-quantity' : ''}`}
+      onClick={handleItemClick}
+    >
       <div className="item-info">
         <div className="item-display-name">{item.displayName}</div>
         <div className="item-code">{item.code}</div>
@@ -32,7 +39,10 @@ export const ItemComponent: React.FC<ItemComponentProps> = ({
       <div className="quantity-controls">
         <button
           className="quantity-btn decrement"
-          onClick={() => onDecrement(item.code)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDecrement(item.code);
+          }}
           disabled={quantity <= 0}
           type="button"
         >
@@ -43,13 +53,20 @@ export const ItemComponent: React.FC<ItemComponentProps> = ({
           type="number"
           className="quantity-input"
           value={quantity}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            e.stopPropagation();
+            handleInputChange(e);
+          }}
+          onClick={(e) => e.stopPropagation()}
           min="0"
         />
         
         <button
           className="quantity-btn increment"
-          onClick={() => onIncrement(item.code)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onIncrement(item.code);
+          }}
           type="button"
         >
           +

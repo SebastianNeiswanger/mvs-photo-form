@@ -15,10 +15,9 @@ export const PackageGrid: React.FC<PackageGridProps> = ({
   onIncrement,
   onDecrement
 }) => {
-  // const handlePackageClick = (itemCode: string) => {
-  //   const currentQuantity = quantities[itemCode] || 0;
-  //   onQuantityChange(itemCode, currentQuantity + 1);
-  // };
+  const handlePackageClick = (itemCode: string) => {
+    onIncrement(itemCode);
+  };
 
   const handleInputChange = (itemCode: string, value: string) => {
     const quantity = parseInt(value) || 0;
@@ -33,7 +32,9 @@ export const PackageGrid: React.FC<PackageGridProps> = ({
           <div
             key={item.code}
             className={`package-item ${quantity > 0 ? 'selected' : ''}`}
+            onClick={() => handlePackageClick(item.code)}
           >
+            <div className="item-display-name">{item.displayName}</div>
             <div className="item-code">{item.code}</div>
             <div className="item-price">${item.price}</div>
             

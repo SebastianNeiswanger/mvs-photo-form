@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { CSVData, Player, FormData } from './types';
 import { parseQuantitiesFromCSV, updatePlayerInCSV } from './csvUtils';
 import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, convertCSVQuantitiesToInternal } from './config';
@@ -37,6 +37,9 @@ function App() {
     quantities: {},
   });
   const [isLoadingFile, setIsLoadingFile] = useState(false);
+  
+  // Ref for name input field to enable focusing
+  const nameInputRef = useRef<HTMLInputElement>(null);
   
   // Validation state
   const validationState = getValidationState(formData.phone, formData.email);
@@ -383,8 +386,45 @@ function App() {
     console.log('⬅️➡️ PLAYER NAVIGATION: Moving from index', currentPlayerIndex, 'to', newIndex);
     setCurrentPlayerIndex(newIndex);
     loadPlayerData(teamPlayers[newIndex]);
+    
+    // Focus the name field after navigation
+    setTimeout(() => {
+      nameInputRef.current?.focus();
+    }, 0);
+    
     console.log('✅ PLAYER NAVIGATION: Complete');
   }, [teamPlayers, currentPlayerIndex, saveCurrentPlayer, loadPlayerData]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only trigger on Enter key
+      if (e.key !== 'Enter') return;
+      
+      // Don't trigger if user is typing in an input field or textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
+        return;
+      }
+      
+      // Don't trigger if no team players available
+      if (teamPlayers.length === 0) return;
+      
+      // Navigate to next player (same as clicking next button)
+      if (currentPlayerIndex < teamPlayers.length - 1) {
+        e.preventDefault();
+        navigatePlayer('next');
+      }
+    };
+
+    // Add event listener to document
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Cleanup function
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [teamPlayers, currentPlayerIndex, navigatePlayer]);
 
   const updateQuantity = useCallback((itemCode: string, change: number) => {
     setFormData(prev => ({
@@ -439,6 +479,27 @@ function App() {
     const item = ITEMS_BY_CODE.get(COACH_CONFIG.FREE_ITEM_CODE);
     return item ? item.price * formData.quantities[COACH_CONFIG.FREE_ITEM_CODE] : 0;
   }, [formData.quantities, formData.isCoach]);
+
+  const resetPlayerToOriginal = useCallback(async () => {
+    if (!selectedPlayer) return;
+    
+    console.log('🔄 RESET PLAYER: Starting reset for player:', selectedPlayer.barcode);
+    
+    // Reset form data to original state with placeholder name based on array position
+    const playerNumber = currentPlayerIndex + 1; // Convert 0-based index to 1-based number
+    setFormData({
+      name: `Player ${playerNumber}`,
+      phone: '',
+      email: '',
+      isCoach: false,
+      quantities: {},
+    });
+    
+    // Trigger save to persist the reset state
+    console.log('🔄 RESET PLAYER: Calling saveCurrentPlayer...');
+    await saveCurrentPlayer();
+    console.log('✅ RESET PLAYER: Complete');
+  }, [selectedPlayer, currentPlayerIndex, saveCurrentPlayer]);
 
   if (!csvData) {
     return (
@@ -557,6 +618,7 @@ function App() {
             <div className="form-group">
               <label>Name:</label>
               <input
+                ref={nameInputRef}
                 type="text"
                 value={formData.name}
                 placeholder={selectedPlayer && isPlaceholderName(`${selectedPlayer.firstName} ${selectedPlayer.lastName}`.trim()) 
@@ -610,7 +672,32 @@ function App() {
                   🎯 Coach discount: 810T free (-${getCoachDiscount()})
                 </p>
               )}
+              
+              <div className="nav-buttons secondary-nav">
+                <button 
+                  onClick={() => navigatePlayer('prev')}
+                  disabled={currentPlayerIndex === 0}
+                  className="nav-btn secondary"
+                >
+                  ←
+                </button>
+                <button 
+                  onClick={() => navigatePlayer('next')}
+                  disabled={currentPlayerIndex === teamPlayers.length - 1}
+                  className="nav-btn secondary"
+                >
+                  →
+                </button>
+              </div>
             </div>
+            
+            <button 
+              onClick={resetPlayerToOriginal}
+              className="reset-player-btn"
+              disabled={!selectedPlayer}
+            >
+              🔄 Reset Player
+            </button>
           </div>
 
           <div className="column">
