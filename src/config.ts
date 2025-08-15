@@ -48,6 +48,7 @@ export const FAMILY_ITEMS: ItemConfig[] = [
 export const TEAM_ITEMS: ItemConfig[] = [
   { code: '57T', displayName: '5x7 - Team', price: 11, category: 't-variant' },
   { code: '810T', displayName: '8x10 - Team', price: 17, category: 't-variant' },
+  { code: 'DDT', displayName: 'Digital File - Team', price: 25, category: 't-variant' },
 ];
 
 // Legacy combined variant items for backward compatibility
