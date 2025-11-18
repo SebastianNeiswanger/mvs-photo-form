@@ -3,7 +3,7 @@
 A professional desktop application for managing sports photography order forms. Built for photographers and sports organizations to efficiently process player photo orders with automatic data validation, real-time formatting, and seamless CSV file management.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Linux-green.svg)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS-green.svg)
 ![Tauri](https://img.shields.io/badge/Tauri-v2-orange.svg)
 ![React](https://img.shields.io/badge/React-18-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)
@@ -61,16 +61,73 @@ MVS Photo Form Filler streamlines the sports photography ordering process by pro
 
 ## 📋 Requirements
 
-### System Dependencies (Linux)
+### System Dependencies
+
+#### macOS
+Before starting, ensure you have the following installed:
+
+1. **Xcode Command Line Tools** (required for compiling Rust and native dependencies)
+   ```bash
+   xcode-select --install
+   ```
+
+2. **Homebrew** (macOS package manager)
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+3. **Rust** (via rustup)
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   # Follow the prompts, then restart your terminal or run:
+   source $HOME/.cargo/env
+   ```
+
+4. **Node.js** (v18+)
+   ```bash
+   brew install node
+   ```
+
+5. **Bun** (fast JavaScript package manager)
+   ```bash
+   brew install oven-sh/bun/bun
+   ```
+
+#### Linux (Ubuntu/Debian)
 ```bash
-# Required for Tauri development
+# Install Rust (if not already installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Install system dependencies required for Tauri
 sudo apt install libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+
+# Install Node.js (v18+)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
 ```
 
-### Runtime Requirements
-- **Node.js** (v18+)
-- **Bun** package manager
-- **Rust** toolchain (automatically managed by Tauri)
+### Verify Installation
+After installing the dependencies, verify everything is set up correctly:
+
+```bash
+# Check Rust installation
+rustc --version
+cargo --version
+
+# Check Node.js installation
+node --version
+
+# Check Bun installation
+bun --version
+
+# macOS only: Verify Xcode Command Line Tools
+xcode-select -p
+```
+
+You should see version numbers for all commands. If any command fails, revisit the installation steps above.
 
 ## 🚀 Quick Start
 
@@ -172,6 +229,102 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [Tauri](https://tauri.app/) for cross-platform desktop functionality
 - Uses [PapaParse](https://www.papaparse.com/) for robust CSV processing
 - Developed for sports photography professionals and organizations
+
+## 🔧 Troubleshooting
+
+### macOS-Specific Issues
+
+#### Xcode Command Line Tools Not Found
+If you encounter errors about missing development tools:
+```bash
+# Reinstall Command Line Tools
+sudo rm -rf /Library/Developer/CommandLineTools
+xcode-select --install
+```
+
+#### Rust Compilation Errors
+If Rust fails to compile:
+```bash
+# Update Rust to the latest version
+rustup update
+
+# Verify the default toolchain
+rustup default stable
+```
+
+#### Permission Denied Errors
+If you get permission errors when running commands:
+```bash
+# Ensure Homebrew has correct permissions
+sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/share
+
+# For Apple Silicon Macs (M1/M2/M3), use:
+sudo chown -R $(whoami) /opt/homebrew
+```
+
+#### "xcrun: error" Messages
+If you see `xcrun: error: invalid active developer path`:
+```bash
+# This means Command Line Tools need to be installed or updated
+xcode-select --install
+```
+
+#### Bun Installation Issues
+If Bun doesn't install via Homebrew:
+```bash
+# Alternative installation method using curl
+curl -fsSL https://bun.sh/install | bash
+
+# Then add to your PATH (add to ~/.zshrc or ~/.bash_profile)
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+#### Application Won't Build
+If `bun run tauri dev` fails:
+```bash
+# Clear caches and rebuild
+rm -rf node_modules
+rm -rf src-tauri/target
+bun install
+bun run tauri dev
+```
+
+### Linux-Specific Issues
+
+#### Missing System Libraries
+If you encounter errors about missing `.so` files:
+```bash
+# Ensure all required libraries are installed
+sudo apt update
+sudo apt install libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+### General Issues
+
+#### Node Version Conflicts
+If you have Node version issues:
+```bash
+# Check your Node version
+node --version
+
+# If below v18, update Node.js
+# macOS:
+brew upgrade node
+
+# Linux:
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+#### File Dialog Not Opening
+Ensure you're running the Tauri app (not web dev server):
+```bash
+# Correct command for desktop app
+bun run tauri dev
+
+# NOT: bun run dev (this is web-only with limited functionality)
+```
 
 ## 📞 Support
 

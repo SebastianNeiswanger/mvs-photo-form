@@ -4,41 +4,41 @@ import { ItemConfig } from './types';
 // Package items (3x3 grid: A, B, C, D, E, F, G, H, DD)
 export const PACKAGE_ITEMS: ItemConfig[] = [
   { code: 'A', displayName: 'Package A', price: 15, category: 'package' },
-  { code: 'B', displayName: 'Package B', price: 20, category: 'package' },
+  { code: 'B', displayName: 'Package B', price: 22, category: 'package' },
   { code: 'C', displayName: 'Package C', price: 25, category: 'package' },
-  { code: 'D', displayName: 'Package D', price: 35, category: 'package' },
-  { code: 'E', displayName: 'Package E', price: 44, category: 'package' },
-  { code: 'F', displayName: 'Package F', price: 53, category: 'package' },
+  { code: 'D', displayName: 'Package D', price: 37, category: 'package' },
+  { code: 'E', displayName: 'Package E', price: 48, category: 'package' },
+  { code: 'F', displayName: 'Package F', price: 52, category: 'package' },
   { code: 'G', displayName: 'Package G', price: 60, category: 'package' },
-  { code: 'H', displayName: 'Package H', price: 45, category: 'package' },
-  { code: 'DDPa', displayName: 'Digital Download', price: 30, category: 'package' },
+  { code: 'H', displayName: 'Package H', price: 30, category: 'package' },
+  { code: 'DDPa', displayName: 'Digital Download', price: 35, category: 'package' },
 ];
 
 // Product items (Column 2)
 export const PRODUCT_ITEMS: ItemConfig[] = [
-  { code: '57', displayName: '5x7 Individual', price: 9, category: 'product' },
-  { code: '810', displayName: '8x10 Individual', price: 15, category: 'product' },
-  { code: '23', displayName: '4 Wallets', price: 8, category: 'product' },
-  { code: '23x8', displayName: '8 Wallets', price: 15, category: 'product' },
-  { code: 'Bu', displayName: 'Button', price: 9, category: 'product' },
-  { code: 'ABa', displayName: 'Acrylic Button', price: 9, category: 'product' },
-  { code: 'Ma', displayName: 'Magnet', price: 9, category: 'product' },
-  { code: 'AMa', displayName: 'Acrylic Magnet', price: 9, category: 'product' },
-  { code: 'Kc', displayName: 'Keychain', price: 12, category: 'product' },
-  { code: 'KcS', displayName: 'Keychain Statuette', price: 18, category: 'product' },
+  { code: '57', displayName: '5x7 Individual', price: 10, category: 'product' },
+  { code: '810', displayName: '8x10 Individual', price: 16, category: 'product' },
+  { code: '23', displayName: '4 Wallets', price: 10, category: 'product' },
+  { code: '2x45', displayName: '2 - 4x5', price: 14, category: 'product' },
+  { code: 'Bu', displayName: 'Button', price: 10, category: 'product' },
+  { code: 'ABa', displayName: 'Acrylic Button', price: 10, category: 'product' },
+  { code: 'Ma', displayName: 'Magnet', price: 12, category: 'product' },
+  { code: 'AMa', displayName: 'Acrylic Magnet', price: 12, category: 'product' },
+  { code: 'Kc', displayName: 'Keychain', price: 15, category: 'product' },
+  { code: 'KcS', displayName: 'Keychain Statuette', price: 15, category: 'product' },
   { code: 'DDPr', displayName: 'Digital File', price: 20, category: 'product' },
 ];
 
 // F (Family) Variant items (Column 3)
 export const FAMILY_ITEMS: ItemConfig[] = [
-  { code: '57F', displayName: '5x7 - Family', price: 11, category: 'f-variant' },
-  { code: '810F', displayName: '8x10 - Family', price: 17, category: 'f-variant' },
-  { code: '23F', displayName: '4 Wallets - Family', price: 10, category: 'f-variant' },
-  { code: '23x8F', displayName: '8 Wallets - Family', price: 17, category: 'f-variant' },
-  { code: 'BuF', displayName: 'Button - Family', price: 11, category: 'f-variant' },
-  { code: 'ABuF', displayName: 'Acrylic Button - Family', price: 17, category: 'f-variant' },
-  { code: 'MaF', displayName: 'Magnet - Family', price: 11, category: 'f-variant' },
-  { code: 'AMaF', displayName: 'Acrylic Magnet - Family', price: 17, category: 'f-variant' },
+  { code: '57F', displayName: '5x7 - Family', price: 12, category: 'f-variant' },
+  { code: '810F', displayName: '8x10 - Family', price: 18, category: 'f-variant' },
+  { code: '23F', displayName: '4 Wallets - Family', price: 12, category: 'f-variant' },
+  { code: '45F', displayName: '4x5 - Family (make sure to click twice)', price: 8, category: 'f-variant' },
+  { code: 'BuF', displayName: 'Button - Family', price: 12, category: 'f-variant' },
+  { code: 'ABuF', displayName: 'Acrylic Button - Family', price: 18, category: 'f-variant' },
+  { code: 'MaF', displayName: 'Magnet - Family', price: 15, category: 'f-variant' },
+  { code: 'AMaF', displayName: 'Acrylic Magnet - Family', price: 18, category: 'f-variant' },
   { code: 'KcF', displayName: 'Keychain - Family', price: 15, category: 'f-variant' },
   { code: 'KcSF', displayName: 'Keychain Statuette - Family', price: 23, category: 'f-variant' },
   { code: 'DDF', displayName: 'Digital File - Family', price: 25, category: 'f-variant' },
@@ -46,8 +46,8 @@ export const FAMILY_ITEMS: ItemConfig[] = [
 
 // T (Team) Variant items (Column 4)  
 export const TEAM_ITEMS: ItemConfig[] = [
-  { code: '57T', displayName: '5x7 - Team', price: 11, category: 't-variant' },
-  { code: '810T', displayName: '8x10 - Team', price: 17, category: 't-variant' },
+  { code: '57T', displayName: '5x7 - Team', price: 12, category: 't-variant' },
+  { code: '810T', displayName: '8x10 - Team', price: 18, category: 't-variant' },
   { code: 'DDT', displayName: 'Digital File - Team', price: 25, category: 't-variant' },
 ];
 
