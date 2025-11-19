@@ -4,6 +4,7 @@ import { parseQuantitiesFromCSV, updatePlayerInCSV } from './csvUtils';
 import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, convertCSVQuantitiesToInternal } from './config';
 import { PackageGrid } from './components/PackageGrid';
 import { ItemComponent } from './components/ItemComponent';
+import { EmailAutocomplete } from './components/EmailAutocomplete';
 import { TauriFileOperations } from './tauriFileOperations';
 import { ErrorHandler, AppError, ErrorCodes } from './errorHandling';
 import { 
@@ -504,7 +505,10 @@ function App() {
   if (!csvData) {
     return (
       <main className="container">
-        <h1>MVS Photo Form</h1>
+        <div className="header-with-logo">
+          <img src="/logo.png" alt="MVS Logo" className="header-logo" />
+          <h1>MVS Photo Form</h1>
+        </div>
         <div className="file-selection">
           <h2>Select CSV File</h2>
           <div className="desktop-file-selection">
@@ -531,8 +535,11 @@ function App() {
 
   return (
     <main className="container">
-      <h1>MVS Photo Form</h1>
-      
+      <div className="header-with-logo">
+        <img src="/logo.png" alt="MVS Logo" className="header-logo" />
+        <h1>MVS Photo Form</h1>
+      </div>
+
       <div className="navigation">
         <div className="nav-dropdowns">
           <div className="dropdown-group">
@@ -621,10 +628,15 @@ function App() {
                 ref={nameInputRef}
                 type="text"
                 value={formData.name}
-                placeholder={selectedPlayer && isPlaceholderName(`${selectedPlayer.firstName} ${selectedPlayer.lastName}`.trim()) 
+                placeholder={selectedPlayer && isPlaceholderName(`${selectedPlayer.firstName} ${selectedPlayer.lastName}`.trim())
                   ? cleanCoachSuffixFromFullName(`${selectedPlayer.firstName} ${selectedPlayer.lastName}`.trim())
                   : 'Enter player name'}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className={(formData.quantities['C'] || 0) > 0 ? 'dd-selected-glow' : ''}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
               />
             </div>
             <div className="form-group">
@@ -633,9 +645,18 @@ function App() {
                 type="text"
                 value={formData.phone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
-                className={!validationState.phoneValid ? 'validation-error' : ''}
+                className={`${!validationState.phoneValid ? 'validation-error' : ''} ${
+                  ((formData.quantities['DDPa'] || 0) > 0 ||
+                   (formData.quantities['DDPr'] || 0) > 0 ||
+                   (formData.quantities['DDF'] || 0) > 0 ||
+                   (formData.quantities['DDT'] || 0) > 0) ? 'dd-selected-glow' : ''
+                }`.trim()}
                 placeholder="(123) 456-7890"
                 maxLength={14}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
               />
               {!validationState.phoneValid && formData.phone && (
                 <span className="validation-message">Phone must be 10 digits</span>
@@ -643,12 +664,17 @@ function App() {
             </div>
             <div className="form-group">
               <label>Email:</label>
-              <input
-                type="email"
+              <EmailAutocomplete
+                csvData={csvData}
                 value={formData.email}
-                onChange={(e) => handleEmailChange(e.target.value)}
-                className={!validationState.emailValid ? 'validation-error' : ''}
-                placeholder="player@example.com"
+                onChange={handleEmailChange}
+                validationError={!validationState.emailValid}
+                ddGlow={
+                  ((formData.quantities['DDPa'] || 0) > 0 ||
+                   (formData.quantities['DDPr'] || 0) > 0 ||
+                   (formData.quantities['DDF'] || 0) > 0 ||
+                   (formData.quantities['DDT'] || 0) > 0)
+                }
               />
               {!validationState.emailValid && formData.email && (
                 <span className="validation-message">Please enter a valid email address</span>

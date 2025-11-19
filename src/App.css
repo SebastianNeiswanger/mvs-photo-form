@@ -28,6 +28,22 @@ h1 {
   font-weight: 600;
 }
 
+/* Header with Logo */
+.header-with-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.header-logo {
+  width: 100px;
+  height: auto;
+  max-width: 120px;
+}
+
 /* File Selection */
 .file-selection {
   display: flex;
@@ -299,6 +315,99 @@ h1 {
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
 }
 
+/* DD Product Selected Glow */
+.form-group input.dd-selected-glow {
+  border-color: #4299e1;
+  box-shadow: 0 0 8px 2px rgba(66, 153, 225, 0.6);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input.dd-selected-glow:focus {
+  border-color: #4299e1;
+  box-shadow: 0 0 12px 3px rgba(66, 153, 225, 0.8);
+}
+
+/* Email Autocomplete */
+.email-autocomplete-container {
+  position: relative;
+  width: 100%;
+}
+
+.email-autocomplete-container input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.email-autocomplete-container input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.email-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin-top: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.email-suggestion-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2d3748;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f7fafc;
+}
+
+.email-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.email-suggestion-item:hover,
+.email-suggestion-item.active {
+  background-color: #edf2f7;
+  color: #1a202c;
+}
+
+.email-suggestion-item.active {
+  background-color: #e6fffa;
+  border-left: 3px solid #38b2ac;
+  padding-left: 9px;
+}
+
+/* Scrollbar styling for email dropdown */
+.email-suggestions-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.email-suggestions-dropdown::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 4px;
+}
+
+.email-suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.email-suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
 /* Item Components */
 .item-component {
   display: flex;
@@ -313,6 +422,10 @@ h1 {
   width: 100%;
   box-sizing: border-box;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .item-component:hover {
@@ -330,6 +443,10 @@ h1 {
   display: flex;
   flex-direction: column;
   flex: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 
@@ -338,17 +455,29 @@ h1 {
   color: #2d3748;
   font-size: 13px;
   line-height: 1.2;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .item-code {
   font-size: 11px;
   color: #9ca3af;
   font-style: italic;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .item-price {
   font-size: 11px;
   color: #718096;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .quantity-controls {
@@ -438,6 +567,10 @@ h1 {
   padding: 4px;
   font-size: 10px;
   text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .package-item:hover {
@@ -734,6 +867,15 @@ input[type="number"] {
   .team-select,
   .player-select {
     min-width: 120px;
+  }
+
+  .header-with-logo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-logo {
+    width: 80px;
   }
 }
 
