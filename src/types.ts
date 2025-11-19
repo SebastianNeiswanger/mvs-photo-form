@@ -19,6 +19,8 @@ export interface ItemConfig {
   displayName: string;
   price: number;
   category: 'package' | 'product' | 'f-variant' | 't-variant';
+  parentCode?: string; // For sub-products: reference to parent item code
+  isSubProduct?: boolean; // Flag indicating this is a sub-product
 }
 
 export interface OrderQuantities {

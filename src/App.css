@@ -551,6 +551,81 @@ h1 {
   box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
 }
 
+/* Sub-Products Styling */
+.item-with-subproducts {
+  width: 100%;
+}
+
+.parent-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.chevron-button {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a5568;
+  font-size: 10px;
+  transition: color 0.2s;
+}
+
+.chevron-button:hover {
+  color: #2d3748;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.chevron.expanded {
+  transform: rotate(0deg);
+}
+
+.chevron.collapsed {
+  transform: rotate(0deg);
+}
+
+.parent-item-content {
+  flex: 1;
+}
+
+.sub-products-container {
+  margin-left: 24px;
+  padding-left: 8px;
+  border-left: 2px solid #cbd5e0;
+}
+
+.sub-product-item {
+  opacity: 0.9;
+}
+
+.sub-product-item .item-component {
+  font-size: 0.95em;
+}
+
+.sub-product-item .item-display-name {
+  font-size: 12px;
+}
+
+.sub-product-item .item-code {
+  font-size: 10px;
+}
+
+.sub-product-item .item-price {
+  font-size: 10px;
+}
+
 /* Package Grid Items */
 .package-item {
   width: 90px;

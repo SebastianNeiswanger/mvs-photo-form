@@ -21,10 +21,10 @@ export const PRODUCT_ITEMS: ItemConfig[] = [
   { code: '23', displayName: '4 Wallets', price: 10, category: 'product' },
   { code: '2x45', displayName: '2 - 4x5', price: 14, category: 'product' },
   { code: 'Bu', displayName: 'Button', price: 10, category: 'product' },
-  { code: 'ABa', displayName: 'Acrylic Button', price: 10, category: 'product' },
+  { code: 'ABa', displayName: 'Acrylic Button', price: 10, category: 'product', parentCode: 'Bu', isSubProduct: true },
   { code: 'Ma', displayName: 'Magnet', price: 12, category: 'product' },
-  { code: 'AMa', displayName: 'Acrylic Magnet', price: 12, category: 'product' },
-  { code: 'Kc', displayName: 'Keychain', price: 15, category: 'product' },
+  { code: 'AMa', displayName: 'Acrylic Magnet', price: 12, category: 'product', parentCode: 'Ma', isSubProduct: true },
+  { code: 'Kc', displayName: 'Keychain', price: 15, category: 'product', parentCode: 'KcS', isSubProduct: true },
   { code: 'KcS', displayName: 'Keychain Statuette', price: 15, category: 'product' },
   { code: 'DDPr', displayName: 'Digital File', price: 20, category: 'product' },
 ];
@@ -36,11 +36,11 @@ export const FAMILY_ITEMS: ItemConfig[] = [
   { code: '23F', displayName: '4 Wallets - Family', price: 12, category: 'f-variant' },
   { code: '45F', displayName: '4x5 - Family (make sure to click twice)', price: 8, category: 'f-variant' },
   { code: 'BuF', displayName: 'Button - Family', price: 12, category: 'f-variant' },
-  { code: 'ABuF', displayName: 'Acrylic Button - Family', price: 18, category: 'f-variant' },
+  { code: 'ABuF', displayName: 'Acrylic Button - Family', price: 18, category: 'f-variant', parentCode: 'BuF', isSubProduct: true },
   { code: 'MaF', displayName: 'Magnet - Family', price: 15, category: 'f-variant' },
-  { code: 'AMaF', displayName: 'Acrylic Magnet - Family', price: 18, category: 'f-variant' },
+  { code: 'AMaF', displayName: 'Acrylic Magnet - Family', price: 18, category: 'f-variant', parentCode: 'MaF', isSubProduct: true },
   { code: 'KcF', displayName: 'Keychain - Family', price: 15, category: 'f-variant' },
-  { code: 'KcSF', displayName: 'Keychain Statuette - Family', price: 23, category: 'f-variant' },
+  { code: 'KcSF', displayName: 'Keychain Statuette - Family', price: 23, category: 'f-variant', parentCode: 'KcF', isSubProduct: true },
   { code: 'DDF', displayName: 'Digital File - Family', price: 25, category: 'f-variant' },
 ];
 

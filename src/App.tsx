@@ -1,24 +1,25 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { CSVData, Player, FormData } from './types';
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { CSVData, Player, FormData, ItemConfig } from './types';
 import { parseQuantitiesFromCSV, updatePlayerInCSV } from './csvUtils';
 import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, convertCSVQuantitiesToInternal } from './config';
 import { PackageGrid } from './components/PackageGrid';
 import { ItemComponent } from './components/ItemComponent';
+import { ItemWithSubProducts } from './components/ItemWithSubProducts';
 import { EmailAutocomplete } from './components/EmailAutocomplete';
 import { TauriFileOperations } from './tauriFileOperations';
 import { ErrorHandler, AppError, ErrorCodes } from './errorHandling';
-import { 
-  cleanCoachSuffixFromFullName, 
+import {
+  cleanCoachSuffixFromFullName,
   cleanNoOrderSuffixFromFullName,
-  isPlaceholderName, 
+  isPlaceholderName,
   isPlayerCoach,
   isNoOrderPlayer,
-  formatPlayerNameWithIcons 
+  formatPlayerNameWithIcons
 } from './coachUtils';
-import { 
-  formatPhoneNumber, 
-  getPhoneDigits, 
-  getValidationState 
+import {
+  formatPhoneNumber,
+  getPhoneDigits,
+  getValidationState
 } from './validation';
 import "./App.css";
 
@@ -41,9 +42,36 @@ function App() {
   
   // Ref for name input field to enable focusing
   const nameInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Validation state
   const validationState = getValidationState(formData.phone, formData.email);
+
+  // Helper function to filter and group items with sub-products
+  const useItemsWithSubProducts = (items: ItemConfig[]) => {
+    return useMemo(() => {
+      // Filter out sub-products from the main list
+      const topLevelItems = items.filter(item => !item.isSubProduct);
+
+      // Group sub-products by parent code
+      const subProductsByParent = items
+        .filter(item => item.isSubProduct && item.parentCode)
+        .reduce((acc, item) => {
+          const parent = item.parentCode!;
+          if (!acc[parent]) {
+            acc[parent] = [];
+          }
+          acc[parent].push(item);
+          return acc;
+        }, {} as { [key: string]: ItemConfig[] });
+
+      return { topLevelItems, subProductsByParent };
+    }, [items]);
+  };
+
+  // Get filtered and grouped items for each category
+  const productItemsWithSubs = useItemsWithSubProducts(PRODUCT_ITEMS);
+  const familyItemsWithSubs = useItemsWithSubProducts(FAMILY_ITEMS);
+  const teamItemsWithSubs = useItemsWithSubProducts(TEAM_ITEMS);
 
   const loadPlayerData = useCallback((player: Player) => {
     const fullName = `${player.firstName} ${player.lastName}`.trim();
@@ -738,11 +766,12 @@ function App() {
 
           <div className="column">
             <h3>Products</h3>
-            {PRODUCT_ITEMS.map(item => (
-              <ItemComponent
+            {productItemsWithSubs.topLevelItems.map(item => (
+              <ItemWithSubProducts
                 key={item.code}
                 item={item}
-                quantity={formData.quantities[item.code] || 0}
+                subProducts={productItemsWithSubs.subProductsByParent[item.code] || []}
+                quantities={formData.quantities}
                 onQuantityChange={setQuantity}
                 onIncrement={(itemCode) => updateQuantity(itemCode, 1)}
                 onDecrement={(itemCode) => updateQuantity(itemCode, -1)}
@@ -752,11 +781,12 @@ function App() {
 
           <div className="column">
             <h3>Family Variants</h3>
-            {FAMILY_ITEMS.map(item => (
-              <ItemComponent
+            {familyItemsWithSubs.topLevelItems.map(item => (
+              <ItemWithSubProducts
                 key={item.code}
                 item={item}
-                quantity={formData.quantities[item.code] || 0}
+                subProducts={familyItemsWithSubs.subProductsByParent[item.code] || []}
+                quantities={formData.quantities}
                 onQuantityChange={setQuantity}
                 onIncrement={(itemCode) => updateQuantity(itemCode, 1)}
                 onDecrement={(itemCode) => updateQuantity(itemCode, -1)}
@@ -766,11 +796,12 @@ function App() {
 
           <div className="column">
             <h3>Team Variants</h3>
-            {TEAM_ITEMS.map(item => (
-              <ItemComponent
+            {teamItemsWithSubs.topLevelItems.map(item => (
+              <ItemWithSubProducts
                 key={item.code}
                 item={item}
-                quantity={formData.quantities[item.code] || 0}
+                subProducts={teamItemsWithSubs.subProductsByParent[item.code] || []}
+                quantities={formData.quantities}
                 onQuantityChange={setQuantity}
                 onIncrement={(itemCode) => updateQuantity(itemCode, 1)}
                 onDecrement={(itemCode) => updateQuantity(itemCode, -1)}
