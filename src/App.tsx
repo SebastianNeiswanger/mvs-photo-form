@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/core';
+import { exit } from '@tauri-apps/plugin-process';
 import { CSVData, Player, FormData, ItemConfig } from './types';
 import { parseQuantitiesFromCSV, updatePlayerInCSV } from './csvUtils';
 import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, convertCSVQuantitiesToInternal } from './config';
@@ -467,6 +469,26 @@ function App() {
       unlisten.then(fn => fn());
     };
   }, [saveCurrentPlayer, handleTauriFileSelect]);
+
+  // Listen for update app menu event
+  useEffect(() => {
+    const unlisten = listen('menu-update-app', async () => {
+      console.log('🔄 Menu: Update app triggered');
+      await saveCurrentPlayer();
+      try {
+        await invoke('run_update');
+        // Close the app after launching the update script
+        await exit(0);
+      } catch (error) {
+        console.error('Failed to run update:', error);
+        alert(`Failed to start update: ${error}`);
+      }
+    });
+
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, [saveCurrentPlayer]);
 
   const updateQuantity = useCallback((itemCode: string, change: number) => {
     setFormData(prev => ({

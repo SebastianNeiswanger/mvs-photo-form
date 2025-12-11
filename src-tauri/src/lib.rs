@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::process::Command;
 use chrono::Utc;
 use anyhow::{Context, Result as AnyhowResult};
 use tauri::menu::{MenuBuilder, SubmenuBuilder, MenuItemBuilder};
@@ -76,6 +77,82 @@ async fn create_backup(file_path: String) -> Result<String, String> {
 #[tauri::command]
 async fn write_csv_file(file_path: String, csv_content: String) -> Result<(), String> {
     write_csv_content(&file_path, csv_content).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn run_update() -> Result<(), String> {
+    // Find the repo directory
+    // For AppImage: APPIMAGE env var points to the .AppImage file, repo is sibling dir
+    // For macOS: The .app is in parent dir, repo is sibling dir
+    let repo_dir = if cfg!(target_os = "linux") {
+        // On Linux with AppImage, use APPIMAGE env var
+        std::env::var("APPIMAGE")
+            .ok()
+            .and_then(|appimage_path| {
+                Path::new(&appimage_path)
+                    .parent()
+                    .map(|p| p.join("MVS-form-filler"))
+            })
+            .ok_or("Could not determine repo directory from APPIMAGE")?
+    } else {
+        // On macOS, the .app bundle is in parent dir of repo
+        std::env::current_exe()
+            .map_err(|e| e.to_string())?
+            .parent() // Contents/MacOS
+            .and_then(|p| p.parent()) // Contents
+            .and_then(|p| p.parent()) // .app bundle
+            .and_then(|p| p.parent()) // parent dir
+            .map(|p| p.join("MVS-form-filler"))
+            .ok_or("Could not determine repo directory")?
+    };
+
+    let update_script = repo_dir.join("update.sh");
+
+    if !update_script.exists() {
+        return Err(format!("Update script not found at: {}", update_script.display()));
+    }
+
+    // Open a terminal and run the update script
+    #[cfg(target_os = "linux")]
+    {
+        // Try common Linux terminal emulators
+        let terminals = [
+            ("gnome-terminal", vec!["--", "bash", "-c"]),
+            ("konsole", vec!["-e", "bash", "-c"]),
+            ("xfce4-terminal", vec!["-e"]),
+            ("xterm", vec!["-e"]),
+        ];
+
+        for (term, args) in terminals.iter() {
+            let mut cmd = Command::new(term);
+            for arg in args {
+                cmd.arg(arg);
+            }
+            cmd.arg(update_script.to_str().unwrap());
+
+            if cmd.spawn().is_ok() {
+                return Ok(());
+            }
+        }
+
+        return Err("Could not find a terminal emulator".to_string());
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg("-a")
+            .arg("Terminal")
+            .arg(&update_script)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    {
+        return Err("Unsupported operating system".to_string());
+    }
 }
 
 async fn load_csv_file(file_path: &str) -> AnyhowResult<CSVData> {
@@ -184,10 +261,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             // Create menu items
             let open_item = MenuItemBuilder::new("Open")
                 .id("open")
+                .build(app)?;
+
+            let update_item = MenuItemBuilder::new("Update App")
+                .id("update")
                 .build(app)?;
 
             let pull_item = MenuItemBuilder::new("Pull")
@@ -201,6 +283,7 @@ pub fn run() {
             // Create File submenu
             let file_menu = SubmenuBuilder::new(app, "File")
                 .item(&open_item)
+                .item(&update_item)
                 .build()?;
 
             // Create Git submenu
@@ -230,6 +313,9 @@ pub fn run() {
                 "open" => {
                     let _ = app.emit("menu-open-file", ());
                 }
+                "update" => {
+                    let _ = app.emit("menu-update-app", ());
+                }
                 "pull" | "push" => {
                     // Git functionality - to be implemented
                     println!("Git {} - not yet implemented", id);
@@ -242,7 +328,8 @@ pub fn run() {
             load_csv,
             save_player,
             create_backup,
-            write_csv_file
+            write_csv_file,
+            run_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
