@@ -298,7 +298,11 @@ pub fn run() {
                 .item(&git_menu)
                 .build()?;
 
-            // Set the menu on the main window
+            // Set the menu - on macOS it must be set on the app, on Linux on the window
+            #[cfg(target_os = "macos")]
+            app.set_menu(menu)?;
+
+            #[cfg(not(target_os = "macos"))]
             if let Some(window) = app.get_webview_window("main") {
                 window.set_menu(menu)?;
             }
