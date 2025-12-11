@@ -77,30 +77,8 @@ echo ""
 
 echo "========================================"
 echo "  Update complete!"
+echo "  You can now reopen the app."
+echo "  Press ENTER to close this terminal."
 echo "========================================"
 echo ""
-
-# Reopen the installed app
-echo "Reopening app..."
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    "$PARENT_DIR/$APP_NAME.AppImage" &
-    APP_PID=$!
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    open "$PARENT_DIR/$APP_NAME.app"
-fi
-
-# Wait a moment for the app to start
-sleep 2
-
-# Check if the app started successfully (Linux only)
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if kill -0 $APP_PID 2>/dev/null; then
-        echo "App started successfully!"
-    else
-        echo "WARNING: App may not have started correctly."
-    fi
-fi
-
-echo ""
-echo "Update complete!"
 read -p "Press Enter to close this terminal..."
