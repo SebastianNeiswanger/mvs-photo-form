@@ -1,4 +1,17 @@
 #!/bin/bash
+
+# Source shell profile to get PATH (for bun, cargo, etc.)
+if [ -f "$HOME/.bashrc" ]; then
+    source "$HOME/.bashrc"
+elif [ -f "$HOME/.zshrc" ]; then
+    source "$HOME/.zshrc"
+elif [ -f "$HOME/.profile" ]; then
+    source "$HOME/.profile"
+fi
+
+# Also add common paths for bun and cargo if not already in PATH
+export PATH="$HOME/.bun/bin:$HOME/.cargo/bin:$PATH"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 APP_NAME="MVS Photo Form Filler"
