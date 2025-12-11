@@ -1,6 +1,7 @@
 // Modern Tauri v2 file operations using standard plugins
 import { open } from '@tauri-apps/plugin-dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import { invoke } from '@tauri-apps/api/core';
 import Papa from 'papaparse';
 import { CSVData, Player } from './types';
 import { CSV_COLUMNS, CSV_COLUMN_ORDER } from './config';
@@ -23,7 +24,16 @@ export class TauriFileOperations {
   async selectCSVFile(): Promise<string | null> {
     try {
       console.log('🗂️ Opening file dialog with Tauri dialog plugin...');
-      
+
+      // Try to get the default path to mvs-job-barcodes folder
+      let defaultPath: string | undefined;
+      try {
+        defaultPath = await invoke<string>('get_barcodes_path');
+        console.log('📁 Default path set to:', defaultPath);
+      } catch (err) {
+        console.log('⚠️ Could not get default path, using system default:', err);
+      }
+
       const result = await open({
         filters: [
           {
@@ -31,7 +41,8 @@ export class TauriFileOperations {
             extensions: ['csv']
           }
         ],
-        multiple: false
+        multiple: false,
+        defaultPath: defaultPath
       });
 
       if (typeof result === 'string') {

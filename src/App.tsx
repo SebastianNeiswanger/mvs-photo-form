@@ -8,6 +8,7 @@ import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, c
 import { PackageGrid } from './components/PackageGrid';
 import { ItemWithSubProducts } from './components/ItemWithSubProducts';
 import { EmailAutocomplete } from './components/EmailAutocomplete';
+import { ToastContainer, toast } from './components/Toast';
 import { TauriFileOperations } from './tauriFileOperations';
 import { ErrorHandler, AppError, ErrorCodes } from './errorHandling';
 import {
@@ -490,6 +491,51 @@ function App() {
     };
   }, [saveCurrentPlayer]);
 
+  // Listen for git pull menu event
+  useEffect(() => {
+    const unlisten = listen('menu-git-pull', async () => {
+      console.log('📥 Menu: Git pull triggered');
+      const toastId = toast.loading('Pulling latest changes...');
+      try {
+        const result = await invoke<string>('git_pull');
+        toast.update(toastId, result, 'success');
+      } catch (error) {
+        console.error('Git pull failed:', error);
+        toast.update(toastId, `Git pull failed: ${error}`, 'error');
+      }
+    });
+
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, []);
+
+  // Listen for git push menu event
+  useEffect(() => {
+    const unlisten = listen('menu-git-push', async () => {
+      console.log('📤 Menu: Git push triggered');
+      const commitMessage = window.prompt('Enter commit message:');
+
+      if (!commitMessage) {
+        console.log('Git push cancelled - no commit message');
+        return;
+      }
+
+      const toastId = toast.loading('Pushing changes...');
+      try {
+        const result = await invoke<string>('git_push', { commitMessage });
+        toast.update(toastId, result, 'success');
+      } catch (error) {
+        console.error('Git push failed:', error);
+        toast.update(toastId, `${error}`, 'error');
+      }
+    });
+
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, []);
+
   const updateQuantity = useCallback((itemCode: string, change: number) => {
     setFormData(prev => ({
       ...prev,
@@ -568,6 +614,7 @@ function App() {
   if (!csvData) {
     return (
       <main className="container">
+        <ToastContainer />
         <div className="header-with-logo">
           <img src="/logo.png" alt="MVS Logo" className="header-logo" />
           <h1>MVS Photo Form</h1>
@@ -598,6 +645,7 @@ function App() {
 
   return (
     <main className="container">
+      <ToastContainer />
       <div className="header-with-logo">
         <img src="/logo.png" alt="MVS Logo" className="header-logo" />
         <h1>MVS Photo Form</h1>

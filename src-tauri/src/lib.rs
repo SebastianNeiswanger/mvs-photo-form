@@ -255,6 +255,133 @@ async fn create_backup_file(file_path: &str) -> AnyhowResult<String> {
     Ok(backup_path.to_string_lossy().to_string())
 }
 
+// Helper function to get the parent directory where sister folders are located
+fn get_parent_dir() -> Result<std::path::PathBuf, String> {
+    if cfg!(target_os = "linux") {
+        // On Linux with AppImage, use APPIMAGE env var
+        std::env::var("APPIMAGE")
+            .ok()
+            .and_then(|appimage_path| {
+                Path::new(&appimage_path)
+                    .parent()
+                    .map(|p| p.to_path_buf())
+            })
+            .ok_or_else(|| "Could not determine parent directory from APPIMAGE".to_string())
+    } else {
+        // On macOS, the .app bundle is in parent dir
+        std::env::current_exe()
+            .map_err(|e| e.to_string())?
+            .parent() // Contents/MacOS
+            .and_then(|p| p.parent()) // Contents
+            .and_then(|p| p.parent()) // .app bundle
+            .and_then(|p| p.parent()) // parent dir
+            .map(|p| p.to_path_buf())
+            .ok_or_else(|| "Could not determine parent directory".to_string())
+    }
+}
+
+#[tauri::command]
+fn git_pull() -> Result<String, String> {
+    let parent_dir = get_parent_dir()?;
+    let barcodes_dir = parent_dir.join("mvs-job-barcodes");
+
+    if !barcodes_dir.exists() {
+        // Clone the repository
+        println!("Cloning mvs-job-barcodes repository...");
+        let output = Command::new("git")
+            .args(["clone", "git@github.com:SonicKurt/mvs-job-barcodes.git"])
+            .current_dir(&parent_dir)
+            .output()
+            .map_err(|e| format!("Failed to run git clone: {}", e))?;
+
+        if output.status.success() {
+            Ok("Repository cloned successfully!".to_string())
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            Err(format!("Git clone failed: {}", stderr))
+        }
+    } else {
+        // Pull latest changes
+        println!("Pulling latest changes in mvs-job-barcodes...");
+        let output = Command::new("git")
+            .args(["pull"])
+            .current_dir(&barcodes_dir)
+            .output()
+            .map_err(|e| format!("Failed to run git pull: {}", e))?;
+
+        if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            Ok(format!("Pull successful: {}", stdout.trim()))
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            Err(format!("Git pull failed: {}", stderr))
+        }
+    }
+}
+
+#[tauri::command]
+fn git_push(commit_message: String) -> Result<String, String> {
+    let parent_dir = get_parent_dir()?;
+    let barcodes_dir = parent_dir.join("mvs-job-barcodes");
+
+    if !barcodes_dir.exists() {
+        return Err("mvs-job-barcodes folder not found. Please pull first.".to_string());
+    }
+
+    // Git add
+    println!("Adding changes...");
+    let add_output = Command::new("git")
+        .args(["add", "."])
+        .current_dir(&barcodes_dir)
+        .output()
+        .map_err(|e| format!("Failed to run git add: {}", e))?;
+
+    if !add_output.status.success() {
+        let stderr = String::from_utf8_lossy(&add_output.stderr);
+        return Err(format!("Git add failed: {}", stderr));
+    }
+
+    // Git commit
+    println!("Committing changes...");
+    let commit_output = Command::new("git")
+        .args(["commit", "-m", &commit_message])
+        .current_dir(&barcodes_dir)
+        .output()
+        .map_err(|e| format!("Failed to run git commit: {}", e))?;
+
+    if !commit_output.status.success() {
+        let stderr = String::from_utf8_lossy(&commit_output.stderr);
+        let stdout = String::from_utf8_lossy(&commit_output.stdout);
+        // Check if it's just "nothing to commit"
+        if stdout.contains("nothing to commit") || stderr.contains("nothing to commit") {
+            return Err("Nothing to commit - no changes detected.".to_string());
+        }
+        return Err(format!("Git commit failed: {}", stderr));
+    }
+
+    // Git push
+    println!("Pushing changes...");
+    let push_output = Command::new("git")
+        .args(["push"])
+        .current_dir(&barcodes_dir)
+        .output()
+        .map_err(|e| format!("Failed to run git push: {}", e))?;
+
+    if push_output.status.success() {
+        Ok("Changes pushed successfully!".to_string())
+    } else {
+        let stderr = String::from_utf8_lossy(&push_output.stderr);
+        Err(format!("Git push failed: {}", stderr))
+    }
+}
+
+#[tauri::command]
+fn get_barcodes_path() -> Result<String, String> {
+    let parent_dir = get_parent_dir()?;
+    let barcodes_dir = parent_dir.join("mvs-job-barcodes");
+    Ok(barcodes_dir.to_string_lossy().to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -320,9 +447,11 @@ pub fn run() {
                 "update" => {
                     let _ = app.emit("menu-update-app", ());
                 }
-                "pull" | "push" => {
-                    // Git functionality - to be implemented
-                    println!("Git {} - not yet implemented", id);
+                "pull" => {
+                    let _ = app.emit("menu-git-pull", ());
+                }
+                "push" => {
+                    let _ = app.emit("menu-git-push", ());
                 }
                 _ => {}
             }
@@ -333,7 +462,10 @@ pub fn run() {
             save_player,
             create_backup,
             write_csv_file,
-            run_update
+            run_update,
+            git_pull,
+            git_push,
+            get_barcodes_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
