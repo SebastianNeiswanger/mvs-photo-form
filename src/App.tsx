@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { listen } from '@tauri-apps/api/event';
 import { CSVData, Player, FormData, ItemConfig } from './types';
 import { parseQuantitiesFromCSV, updatePlayerInCSV } from './csvUtils';
 import { ITEMS_BY_CODE, PRODUCT_ITEMS, FAMILY_ITEMS, TEAM_ITEMS, COACH_CONFIG, convertCSVQuantitiesToInternal } from './config';
 import { PackageGrid } from './components/PackageGrid';
-import { ItemComponent } from './components/ItemComponent';
 import { ItemWithSubProducts } from './components/ItemWithSubProducts';
 import { EmailAutocomplete } from './components/EmailAutocomplete';
 import { TauriFileOperations } from './tauriFileOperations';
@@ -429,16 +429,16 @@ function App() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only trigger on Enter key
       if (e.key !== 'Enter') return;
-      
+
       // Don't trigger if user is typing in an input field or textarea
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
         return;
       }
-      
+
       // Don't trigger if no team players available
       if (teamPlayers.length === 0) return;
-      
+
       // Navigate to next player (same as clicking next button)
       if (currentPlayerIndex < teamPlayers.length - 1) {
         e.preventDefault();
@@ -448,12 +448,25 @@ function App() {
 
     // Add event listener to document
     document.addEventListener('keydown', handleKeyDown);
-    
+
     // Cleanup function
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [teamPlayers, currentPlayerIndex, navigatePlayer]);
+
+  // Listen for menu events from Tauri
+  useEffect(() => {
+    const unlisten = listen('menu-open-file', async () => {
+      console.log('📂 Menu: Open file triggered');
+      await saveCurrentPlayer();
+      handleTauriFileSelect();
+    });
+
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, [saveCurrentPlayer, handleTauriFileSelect]);
 
   const updateQuantity = useCallback((itemCode: string, change: number) => {
     setFormData(prev => ({

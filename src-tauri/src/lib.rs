@@ -4,6 +4,8 @@ use std::fs;
 use std::path::Path;
 use chrono::Utc;
 use anyhow::{Context, Result as AnyhowResult};
+use tauri::menu::{MenuBuilder, SubmenuBuilder, MenuItemBuilder};
+use tauri::{Manager, Emitter};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Player {
@@ -182,6 +184,59 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .setup(|app| {
+            // Create menu items
+            let open_item = MenuItemBuilder::new("Open")
+                .id("open")
+                .build(app)?;
+
+            let pull_item = MenuItemBuilder::new("Pull")
+                .id("pull")
+                .build(app)?;
+
+            let push_item = MenuItemBuilder::new("Push")
+                .id("push")
+                .build(app)?;
+
+            // Create File submenu
+            let file_menu = SubmenuBuilder::new(app, "File")
+                .item(&open_item)
+                .build()?;
+
+            // Create Git submenu
+            let git_menu = SubmenuBuilder::new(app, "Git")
+                .item(&pull_item)
+                .item(&push_item)
+                .build()?;
+
+            // Build the menu bar
+            let menu = MenuBuilder::new(app)
+                .item(&file_menu)
+                .item(&git_menu)
+                .build()?;
+
+            // Set the menu on the main window
+            if let Some(window) = app.get_webview_window("main") {
+                window.set_menu(menu)?;
+            }
+
+            Ok(())
+        })
+        .on_menu_event(|app, event| {
+            let id = event.id().as_ref();
+            println!("Menu item clicked: {}", id);
+
+            match id {
+                "open" => {
+                    let _ = app.emit("menu-open-file", ());
+                }
+                "pull" | "push" => {
+                    // Git functionality - to be implemented
+                    println!("Git {} - not yet implemented", id);
+                }
+                _ => {}
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             greet,
             load_csv,
